@@ -5,6 +5,7 @@ import pydirduplicatefinder
 
 setup(name='PyDirDuplicateFinder',
       py_modules=['pydirduplicatefinder',],
+      scripts=['pydirduplicatefinder',],
       version=pydirduplicatefinder.version,
       description=pydirduplicatefinder.description,
       classifiers=["Development Status :: 4 - Beta",

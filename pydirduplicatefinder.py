@@ -5,7 +5,7 @@ import os
 import os.path
 import sys, optparse
 
-version = "0.1.0"
+version = "0.1.1"
 description="Analyse all files in a directory and manage duplicate files (the same file present with different names)"
 
 BUFFER_SIZE = 500000
