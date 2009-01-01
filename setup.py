@@ -8,6 +8,8 @@ setup(name='PyDirDuplicateFinder',
       scripts=['pydirduplicatefinder',],
       version=pydirduplicatefinder.version,
       description=pydirduplicatefinder.description,
+      long_description=open(os.path.join("docs", "README.txt")).read() + "\n" +
+                       open(os.path.join("docs", "HISTORY.txt")).read(),
       classifiers=["Development Status :: 4 - Beta",
                    "Intended Audience :: End Users/Desktop",
                    "License :: OSI Approved :: GNU General Public License (GPL)",

@@ -1,0 +1,14 @@
+Changelog
+=========
+
+0.1.1
+-----
+
+ * Fix to the setup.py script.
+ * Added doc infos.
+ * First egg official release.
+
+0.1.0 - Unreleased
+------------------
+
+ * First release
