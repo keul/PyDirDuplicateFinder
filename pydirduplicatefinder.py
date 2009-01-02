@@ -5,7 +5,7 @@ import os
 import os.path
 import sys, optparse
 
-version = "0.1.1"
+version = "0.1.2"
 description="Analyse all files in a directory and manage duplicate files (the same file present with different names)"
 
 BUFFER_SIZE = 500000
@@ -44,11 +44,13 @@ if __name__ == "__main__":
     options, arguments = p.parse_args()
     
     action = options.action or ACTION_CHOICES[0]
-    
+
     dir_path = os.getcwd()
     if arguments:
         dir_path = arguments[0]
-    
+
+    print "Starting checking directory %s" % dir_path
+
     if not os.path.isdir(dir_path):
         print "The path %s doesn't match a directory"
     
@@ -59,7 +61,7 @@ if __name__ == "__main__":
         if not os.path.isdir(entry_path):
             stats = os.stat(entry_path)
             files.append({'name': entry, 'path' : entry_path, 'size': stats.st_size})
-    
+        
     # phase 1 - sorting by file size
     files.sort(lambda x, y: int(x['size']-y['size']))
 
@@ -77,3 +79,4 @@ if __name__ == "__main__":
             # a new original file has been found
             last_checked = file
 
+    print "Completed"

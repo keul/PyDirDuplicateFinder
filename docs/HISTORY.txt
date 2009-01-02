@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.1.2
+-----
+
+ * Bad bug in the setup.py. Code was ok but the 0.1.1 egg was not installable.
+   Thanks to the everywhere present A. Jung.
+
 0.1.1
 -----
 
