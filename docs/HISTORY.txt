@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.2.0
+-----
+
+ * Added the 'move' action.
+ * Added the --recursive option, to walk an entire tree of folders (thanks to Lord Epzylon).
+ * Added the --min-size option, to specify a minimum size of the files to be checked.
+
 0.1.2
 -----
 
