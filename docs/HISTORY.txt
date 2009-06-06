@@ -1,18 +1,28 @@
 Changelog
 =========
 
+1.0.0
+-----
+
+ * You can now choose multiple directories.
+ * Many fix to the command line help.
+ * Using a wrong directory name was not handled kindly.
+ * More kindly handled the *break* user's action.
+ * Added the **--verbose** option to print some more message infos.
+ * Added the **--quiet** option to output nothing at all.
+
 0.2.0
 -----
 
- * Added the 'move' action.
- * Added the --recursive option, to walk an entire tree of folders (thanks to Lord Epzylon).
- * Added the --min-size option, to specify a minimum size of the files to be checked.
+ * Added the **move** action.
+ * Added the **--recursive** option, to walk an entire tree of folders (thanks to *Lord Epzylon*).
+ * Added the **--min-size** option, to specify a minimum size of the files to be checked.
 
 0.1.2
 -----
 
  * Bad bug in the setup.py. Code was ok but the 0.1.1 egg was not installable.
-   Thanks to the everywhere present A. Jung.
+   Thanks to the everywhere present *A. Jung*.
 
 0.1.1
 -----

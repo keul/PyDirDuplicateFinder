@@ -5,7 +5,7 @@ import pydirduplicatefinder
 
 setup(name='PyDirDuplicateFinder',
       py_modules=['pydirduplicatefinder',],
-      scripts=['pydirduplicatefinder.py',],
+      scripts=['pydirduplicatefinder/pydirduplicatefinder.py',],
       version=pydirduplicatefinder.version,
       description=pydirduplicatefinder.description,
       long_description=open(os.path.join("docs", "README.txt")).read() + "\n" +

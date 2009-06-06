@@ -2,7 +2,7 @@ Introduction
 ============
 
 This application help you cleaning your filesystem from duplicate files. The duplicate meaning here is:
-*the same file is present with different names*.
+*two or more files have the same content but can have different names*.
 
 You can use it in this way::
 
@@ -29,8 +29,9 @@ You can use it in this way::
 TODO
 ====
 
- * Work on more that a folder.
- * A way to specify filters, to skip files or directory.
+ * A way to specify filters (regexp? jolly chars?), to skip/include files or directory.
+ * A **--interactive** action to chose at every duplicate what to do.
+ * Automated test coverage.
 
 Credits
 =======
