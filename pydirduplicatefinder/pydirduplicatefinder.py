@@ -11,24 +11,29 @@ version = "1.0.0"
 description = ("Analyse all files in one or more directories and manage duplicate files "
                "(the same file present with different names)")
 
-BUFFER_SIZE = 100000
 ACTION_CHOICES = ('print','rename','move',)
 SECRET_ACTION_CHOISES = ('tests',)
 
 options = None
 arguments = None
+output = None
 
 duplicates = []
 
 def message(text, mandatory=False):
-    """Print, or not, a message to stdout based onto program arguments preferences
+    """Print, or not, a message to stdout based onto program arguments preferences.
     @mandatory: if True and the --verbose options is not set, the message will be not printed.
     """
+    global output
     if options.quiet:
         return
     if mandatory and not options.verbose:
         return
-    print text
+
+    if output is not None:
+        output+=text+"\n"
+    else:
+        print text
 
 def _manageDuplicate(duplicate, original, action):
     """Choose what to do finding a duplicate"""
@@ -74,6 +79,10 @@ def main(args=[]):
 
     global options
     global arguments
+    global output
+    if args:
+        # Explicit argument passed; not not print output but save it in the output string
+        output = ''
     args = args or sys.argv[1:]
     options, arguments = p.parse_args(args)
     
@@ -165,6 +174,9 @@ def main(args=[]):
 
     except KeyboardInterrupt:
         message("\nTerminated by user action")
+    
+    if output is not None:
+        return output
 
 def testrunner():
     import tests as pddf_tests

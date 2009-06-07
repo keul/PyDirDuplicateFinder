@@ -5,6 +5,8 @@ __author__ = "Keul - lucafbb AT gmail.com"
 import unittest
 from testcase import PyDirDuplicateFinderTestCase
 
+from pydirduplicatefinder import main
+
 class TestPrintOption(PyDirDuplicateFinderTestCase):
     
     def testSimpleFiles(self):

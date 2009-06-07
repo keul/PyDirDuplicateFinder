@@ -4,7 +4,7 @@ import sys, os
 import pydirduplicatefinder
 
 setup(name='PyDirDuplicateFinder',
-      py_modules=['pydirduplicatefinder',],
+      # py_modules=['pydirduplicatefinder',],
       scripts=['pydirduplicatefinder/pydirduplicatefinder.py',],
       version=pydirduplicatefinder.version,
       description=pydirduplicatefinder.description,
