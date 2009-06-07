@@ -5,6 +5,7 @@ import os
 import os.path
 import sys, optparse
 import shutil
+import filecmp
 
 version = "1.0.0"
 description = ("Analyse all files in one or more directories and manage duplicate files "
@@ -27,23 +28,6 @@ def message(text, mandatory=False):
     if mandatory and not options.verbose:
         return
     print text
-
-def _same_file(filepath1, filepath2):
-    """Check if those 2 file (of the same size) are equals"""
-    fh1 = open(filepath1, 'r')
-    fh2 = open(filepath2, 'r')
-    try:
-        while True:
-            part1 = str(fh1.read(BUFFER_SIZE))
-            part2 = str(fh2.read(BUFFER_SIZE))
-            if part1!=part2:
-                return False
-            if not part1:
-                # I'm at the end of the file, without finding any difference
-                return True
-    finally:
-        fh1.close()
-        fh2.close()
 
 def _manageDuplicate(duplicate, original, action):
     """Choose what to do finding a duplicate"""
@@ -162,7 +146,7 @@ def main(args=[]):
                 continue            
             if file['size']==last_checked['size']:
                 # warning: two files with the same size
-                if _same_file(file['path'], last_checked['path']):
+                if filecmp.cmp(file['path'], last_checked['path'], shallow=False):
                     _manageDuplicate(file, last_checked, action=action)
             else:
                 # a new original file has been found
