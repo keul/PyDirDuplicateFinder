@@ -11,7 +11,10 @@ description = ("Analyse all files in one or more directories and manage duplicat
                "(the same file present with different names)")
 
 BUFFER_SIZE = 100000
-ACTION_CHOICES = ('print','rename','move')
+ACTION_CHOICES = ('print','rename','move','tests')
+
+options = None
+arguments = None
 
 duplicates = []
 
@@ -68,23 +71,34 @@ def recurse_dir(dir):
             all_files.append(joined)
     return all_files
 
-if __name__ == "__main__":
 
+def main(args=[]):
+    """Main function.
+    @args: used in test environment, to simulate different command line calls. Default is sys.argv[1:]
+    """
     usage = "usage: %prog [options] [directories]"
     p = optparse.OptionParser(usage=usage, version="%prog " + version, description=description, prog="pydirduplicatefinder.py")
     p.add_option('--action', '-a', default="print", action="store", choices=ACTION_CHOICES, help='Choose an action to do when a duplicate is found. Valid options are %s; print is the default.' % ','.join(ACTION_CHOICES))
     p.add_option('--recursive', '-r', action="store_true", default=False, help='Also check files in subdirectories recursively.')
-    p.add_option('--prefix', '-p', default="DUPLICATED", help="Prefix used for renaming duplicated files when the 'rename' action is chosen. Default is \"DUPLICATED\"")
+    #p.add_option('--recursion-level', '-l', default=0, help="When the --recursive option is used, you can also set the maximum deep to explore. This value to 0 (the default) is for no limit.")
+    p.add_option('--prefix', '-p', default="DUPLICATED", help="Prefix used for renaming duplicated files when the 'rename' action is chosen. Default is \"DUPLICATED\".")
     p.add_option('--move-path', '-m', dest="move_to", default=None, metavar="PATH", help="The directory where duplicate will be moved when the 'move' action is chosen.")
     p.add_option('--min-size', '-s', dest="min_size", default=10, help='Indicate the min size in byte of a file to be checked. Default is 10. Empty file are always ignored.')
     p.add_option('--verbose', '-v', action="store_true", default=False, help='More verbose output.')
-    p.add_option('--quiet', '-q', action="store_true", default=False, help='Do not print at messages at all.')
-    options, arguments = p.parse_args()
+    p.add_option('--quiet', '-q', action="store_true", default=False, help='Do not print any messages at all.')
+
+    global options
+    global arguments
+    args = args or sys.argv[1:]
+    options, arguments = p.parse_args(args)
     
     action = options.action
-    dir_paths = [os.getcwd(),]
-    if arguments:
-        dir_paths = arguments
+
+    if action=='tests':
+        testrunner()
+        return
+    
+    dir_paths = arguments or ['.']
 
     try:
         min_size = int(options.min_size)
@@ -166,4 +180,14 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         message("\nTerminated by user action")
+
+def testrunner():
+    import tests as pddf_tests
+    import unittest
+    unittest.TextTestRunner(verbosity=2).run(pddf_tests.test_functions.alltests)
+
+
+if __name__ == "__main__":
+    main()
+
 

@@ -31,7 +31,8 @@ TODO
 
  * A way to specify filters (regexp? jolly chars?), to skip/include files or directory.
  * A **--interactive** action to chose at every duplicate what to do.
- * Automated test coverage.
+ * Tests coverage.
+ * Controls recursion maximum level.
 
 Credits
 =======

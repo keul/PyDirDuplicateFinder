@@ -8,6 +8,8 @@ import sys, optparse
 import shutil
 import unittest
 
+import tempfile
+
 class PyDirDuplicateFinderTestCase(unittest.TestCase):
     """My own extension of the base TestCase class"""
     
@@ -16,7 +18,7 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
         self.temp_dir = None
     
     def setUp(self):
-        pass
+        self.temp_dir = tempfile.mkdtemp()
 
     def tearDown(self):
-        pass
+        shutil.rmtree(self.temp_dir)
