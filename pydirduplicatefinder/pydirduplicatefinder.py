@@ -12,7 +12,8 @@ description = ("Analyse all files in one or more directories and manage duplicat
                "(the same file present with different names)")
 
 BUFFER_SIZE = 100000
-ACTION_CHOICES = ('print','rename','move','tests')
+ACTION_CHOICES = ('print','rename','move',)
+SECRET_ACTION_CHOISES = ('tests',)
 
 options = None
 arguments = None
@@ -62,7 +63,7 @@ def main(args=[]):
     """
     usage = "usage: %prog [options] [directories]"
     p = optparse.OptionParser(usage=usage, version="%prog " + version, description=description, prog="pydirduplicatefinder.py")
-    p.add_option('--action', '-a', default="print", action="store", choices=ACTION_CHOICES, help='Choose an action to do when a duplicate is found. Valid options are %s; print is the default.' % ','.join(ACTION_CHOICES))
+    p.add_option('--action', '-a', default="print", action="store", choices=ACTION_CHOICES+SECRET_ACTION_CHOISES, help='Choose an action to do when a duplicate is found. Valid options are %s; print is the default.' % ','.join(ACTION_CHOICES))
     p.add_option('--recursive', '-r', action="store_true", default=False, help='Also check files in subdirectories recursively.')
     #p.add_option('--recursion-level', '-l', default=0, help="When the --recursive option is used, you can also set the maximum deep to explore. This value to 0 (the default) is for no limit.")
     p.add_option('--prefix', '-p', default="DUPLICATED", help="Prefix used for renaming duplicated files when the 'rename' action is chosen. Default is \"DUPLICATED\".")
