@@ -4,9 +4,10 @@ Changelog
 1.0.0
 -----
 
+ * The runnable script name has been changed to **duplicatefinder**.
  * You can now choose multiple directories.
  * Many fix to the command line help.
- * Using a wrong directory name was not handled kindly.
+ * Using a wrong directory name was not handled.
  * More kindly handled the *break* user's action.
  * Added the **--verbose** option to print some more message infos.
  * Added the **--quiet** option to output nothing at all.

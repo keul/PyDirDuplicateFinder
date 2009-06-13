@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from pydirduplicatefinder import version, description
+from duplicatefinder import version, description
