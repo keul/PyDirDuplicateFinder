@@ -10,6 +10,8 @@ import unittest
 
 import tempfile
 
+from pydirduplicatefinder import interface_texts
+
 class PyDirDuplicateFinderTestCase(unittest.TestCase):
     """My own extension of the base TestCase class"""
     
@@ -22,3 +24,18 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
+    
+    def wrapInNormalExecution(self, dirs, text):
+        dirs_text = ', '.join(dirs)
+        return interface_texts.STARTING_CHECKING_MSG % dirs_text + "\n" + \
+               text + \
+               interface_texts.ENDING_NORMALLY_MSG+"\n"
+
+    def mkDir(self, name=None, prefix='tmp'):
+       """Create a test directory inside the temp directory"""
+       if name:
+           path = os.path.join(self.temp_dir, name)
+           os.mkdir(path)
+           return path
+       return tempfile.mkdtemp(prefix=prefix, dir=self.temp_dir)
+

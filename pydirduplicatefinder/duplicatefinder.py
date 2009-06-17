@@ -7,6 +7,8 @@ import sys, optparse
 import shutil
 import filecmp
 
+from pydirduplicatefinder import interface_texts
+
 version = "1.0.0"
 description = ("Analyse all files in one or more directories and manage duplicate files "
                "(the same file present with different names)")
@@ -38,11 +40,11 @@ def message(text, mandatory=False):
 def _manageDuplicate(duplicate, original, action):
     """Choose what to do finding a duplicate"""
     if action=='print' or options.verbose:
-        message("The file %s is a duplicate of %s" % (duplicate['path'], original['path']))
+        message(interface_texts.FILE_IS_DUPLICATE % (duplicate['path'], original['path']))
     if action=='rename':
         prefix = options.prefix
         newName = str(prefix) + str( duplicate['name'])
-        message("  Renaming duplicate %s to %s" % (duplicate['path'], newName))
+        message(interface_texts.RENAMING_DUPLICATE % (duplicate['path'], newName))
         os.rename(duplicate['path'], os.path.join(os.path.dirname(duplicate['path']),newName))
     elif action=='move':
         # I only memoize duplicates for now, so I can move them later and I'm not forced to manage strange loop
@@ -67,7 +69,7 @@ def main(args=[]):
     @args: used in test environment, to simulate different command line calls. Default is sys.argv[1:]
     """
     usage = "usage: %prog [options] [directories]"
-    p = optparse.OptionParser(usage=usage, version="%prog " + version, description=description, prog="dirduplicatefinder.py")
+    p = optparse.OptionParser(usage=usage, version="%prog " + version, description=description, prog="duplicatefinder.py")
     p.add_option('--action', '-a', default="print", action="store", choices=ACTION_CHOICES+SECRET_ACTION_CHOISES, help='Choose an action to do when a duplicate is found. Valid options are %s; print is the default.' % ','.join(ACTION_CHOICES))
     p.add_option('--recursive', '-r', action="store_true", default=False, help='Also check files in subdirectories recursively.')
     #p.add_option('--recursion-level', '-l', default=0, help="When the --recursive option is used, you can also set the maximum deep to explore. This value to 0 (the default) is for no limit.")
@@ -114,12 +116,12 @@ def main(args=[]):
     valid_dir_paths = []
     for dir_path in dir_paths:
         if not os.path.isdir(dir_path):
-            message("The path %s doesn't match a valid directory; ignoring it." % dir_path)
+            message(interface_texts.PATH_IS_NOT_VALID_DIR % dir_path)
         else:
             valid_dir_paths.append(dir_path)
     dir_paths = valid_dir_paths
 
-    message("Starting checking directories %s" % ", ".join(dir_paths))
+    message(interface_texts.STARTING_CHECKING_MSG % ", ".join(dir_paths))
 
     try:
         # phase 1 - walking directories
@@ -149,10 +151,10 @@ def main(args=[]):
         last_checked = {'name': '', 'path' : '', 'size': -1}
         for file in files:
             if file['size']==0:
-                message("skipping \"%s\"; is an empty file" % file['path'], mandatory=True)
+                message(interface_texts.SKIPPING_EMPTY % file['path'], mandatory=True)
                 continue
             if file['size']<min_size:
-                message("skipping \"%s\"; is too small (%s bytes)." % (file['path'], file['size']), mandatory=True)
+                message(interface_texts.SKIPPING_TOO_SMALL % (file['path'], file['size']), mandatory=True)
                 continue            
             if file['size']==last_checked['size']:
                 # warning: two files with the same size
@@ -167,10 +169,10 @@ def main(args=[]):
             message("Phase 4: moving files away", mandatory=True)
             dest = options.move_to
             for duplicate in duplicates:
-                message("  moving duplicate %s to %s" % (duplicate['path'], dest))
+                message(interface_texts.MOVING_DUPLICATE % (duplicate['path'], dest))
                 shutil.move(duplicate['path'], dest)
 
-        message("\nCompleted")
+        message(interface_texts.ENDING_NORMALLY_MSG)
 
     except KeyboardInterrupt:
         message("\nTerminated by user action")
