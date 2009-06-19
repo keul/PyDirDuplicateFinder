@@ -15,14 +15,14 @@ class TestPrintOption(PyDirDuplicateFinderTestCase):
         self.assertEquals(self.wrapInNormalExecution([self.temp_dir], ''),
                           main(['-ra', 'print', self.temp_dir, ]))
 
-    def testEmptyDirectories(self):
+    def test2EmptyDirectories(self):
         """Basic test onto two empty directories"""
         d1 = self.mkDir('d1')
         d2 = self.mkDir('d2')
         self.assertEquals(self.wrapInNormalExecution([d1, d2], ''),
                           main(['-ra', 'print', d1, d2]))
 
-    def testEmptyDirectories(self):
+    def test3EmptyDirectoriesWithDuplicate(self):
         """Basic test onto two empty directories (but one passed twice)"""
         d1 = self.mkDir('d1')
         d2 = self.mkDir('d2')
