@@ -11,3 +11,24 @@ MOVING_DUPLICATE = "  moving duplicate %s to %s"
 
 SKIPPING_EMPTY = "skipping \"%s\"; is an empty file"
 SKIPPING_TOO_SMALL = "skipping \"%s\"; is too small (%s bytes)."
+
+# Asking for user action
+ASK_MESSAGE_OPTION = """Do you want to:
+  (s) - Skip and continue
+  (d) - Delete one of the two files
+  (r) - Rename one of the two files
+  (m) - Move one of the two files
+  (q) - Quit
+"""
+
+ASK_INPUT = "Insert your choice: "
+NON_VALID_CHOICE = "Choice %s is invalid. Please retry."
+
+ASK_MESSAGE_SELECTION = """Select one of the files:
+  (1) - %s
+  (2) - %s
+"""
+
+NON_VALID_SELECTION = "Selection %s is invalid. Please insert 1 for the original file, 2 for the duplicate."
+
+ASK_INPUT_RENAME = "Insert the new name for '%s' file: "

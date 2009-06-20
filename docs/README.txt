@@ -24,15 +24,17 @@ You can use it in this way::
                             'move' action is chosen.
       -s MIN_SIZE, --min-size=MIN_SIZE
                             Indicate the min size in byte of a file to be checked.
-                            Default is 10. Empty file are always ignored.
+                            Default is 128. Empty file are always ignored.
 
 TODO
 ====
 
- * A way to specify filters (regexp? jolly chars?), to skip/include files or directory.
- * A **--interactive** action to chose at every duplicate what to do.
- * Tests coverage.
- * Controls recursion maximum level.
+ * A way to specify filters (regexp? jolly chars?), to include/exclude files or directories by name.
+ * A **--action=ask** option to chose at every found duplicate what action perform.
+ * More tests coverage.
+ * Controls recursion maximum depth.
+ * Internationalization (at least italian).
+ * A "move to trash" action.
 
 Credits
 =======

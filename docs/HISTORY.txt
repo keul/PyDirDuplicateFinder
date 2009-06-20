@@ -12,7 +12,7 @@ Changelog
  * Added the **--verbose** option to print some more message infos.
  * Added the **--quiet** option to output nothing at all.
  * Removed the *_same_file* function. Python already have a `filecmp`__ module (hoping this is faster)!
- * Added environment for automated tests, and some tests too.
+ * Added environment for automated tests, and tests too (use the *--action=tests*).
 
 __ http://docs.python.org/library/filecmp.html
 

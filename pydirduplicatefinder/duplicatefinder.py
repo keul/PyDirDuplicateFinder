@@ -13,12 +13,15 @@ version = "1.0.0"
 description = ("Analyse all files in one or more directories and manage duplicate files "
                "(the same file present with different names)")
 
-ACTION_CHOICES = ('print','rename','move',)
+ACTION_CHOICES = ('print','rename','move','ask')
 SECRET_ACTION_CHOISES = ('tests',)
+
+VALID_CHOICES = ('s', 'd', 'r', 'm', 'q', )
 
 options = None
 arguments = None
 output = None
+last_checked = {}
 
 duplicates = []
 
@@ -50,14 +53,75 @@ def _manageDuplicate(duplicate, original, action):
         # I only memoize duplicates for now, so I can move them later and I'm not forced to manage strange loop
         # (if I choose a target directory inside the checked directories)
         duplicates.append(duplicate)
+    elif action=='ask':
+        _askForUserAction(duplicate, original)
 
+def _askForUserAction(duplicate, original):
+    """Ask to the user what to do with duplicate"""
+    message("\n" + interface_texts.FILE_IS_DUPLICATE % (duplicate['path'], original['path']))
+    message(interface_texts.ASK_MESSAGE_OPTION)
+    valid_choice = False
+    while (not valid_choice):
+        choice = raw_input(interface_texts.ASK_INPUT)
+        valid_choice = choice in VALID_CHOICES
+        if not valid_choice:
+            message(interface_texts.NON_VALID_CHOICE % choice)
+    # I've the choice, lets do something
+    if choice=='q':
+        raise KeyboardInterrupt()
+    elif choice=='s':
+        return
+    #elif choice=='d' or choice=='r' or choice=='m':
+    # I need to choose one of the two files
+    message(interface_texts.ASK_MESSAGE_SELECTION % (original['path'], duplicate['path']))
+    valid_selection = False
+    while (not valid_selection):
+        selection = raw_input(interface_texts.ASK_INPUT)
+        valid_selection = selection in ('1', '2')
+        if not valid_selection:
+            message(interface_texts.NON_VALID_SELECTION % selection)
+    # I have the choice and the selection, now REALLY do something!
+    if choice=='d':
+        manage_delete(original, duplicate, selection)
+    elif choice=='r':
+        manage_rename(original, duplicate, selection)
 
-def recurse_dir(dir):
+def manage_delete(original, duplicate, selection):
+    """Delete the original (or the duplicate) file looking at selection parameter"""
+    global last_checked
+    if selection=='1':
+        # Delete the original; the duplicate become the new original
+        os.remove(original['path'])
+        last_checked = duplicate
+    else:
+        # Delete the duplicate
+        os.remove(duplicate['path'])
+
+def manage_rename(original, duplicate, selection):
+    """Rename the original (or the duplicate) file looking at selection parameter"""
+    global last_checked
+    if selection=='1':
+        # Rename the original; change all the last_checked structure
+        file_name = os.path.basename(original['path'])
+        dir_name = os.path.dirname(original['path'])
+        new_name = raw_input(interface_texts.ASK_INPUT_RENAME % file_name)
+        os.rename(os.path.join(dir_name, file_name), os.path.join(dir_name, new_name))
+        last_checked = {'name': new_name, 'path' : os.path.join(dir_name, new_name), 'size': last_checked['size']}
+    else:
+        # Rename the duplicate
+        file_name = os.path.basename(duplicate['path'])
+        dir_name = os.path.dirname(duplicate['path'])
+        new_name = raw_input(interface_texts.ASK_INPUT_RENAME % file_name)
+        os.rename(os.path.join(dir_name, file_name), os.path.join(dir_name, new_name))
+
+def recurse_dir(directory):
     """List files all files inside dir, recursively"""
-    dirs = os.walk(dir)
+    dirs = os.walk(directory)
     all_files = []
     for dirpath, dirnames, filenames in dirs:
+        dirnames.sort() # Needed only for tests purposes
         files_in = []
+        filenames.sort()
         for f in filenames:
             joined = os.path.join (dirpath, f)
             all_files.append(joined)
@@ -75,13 +139,15 @@ def main(args=[]):
     #p.add_option('--recursion-level', '-l', default=0, help="When the --recursive option is used, you can also set the maximum deep to explore. This value to 0 (the default) is for no limit.")
     p.add_option('--prefix', '-p', default="DUPLICATED", help="Prefix used for renaming duplicated files when the 'rename' action is chosen. Default is \"DUPLICATED\".")
     p.add_option('--move-path', '-m', dest="move_to", default=None, metavar="PATH", help="The directory where duplicate will be moved when the 'move' action is chosen.")
-    p.add_option('--min-size', '-s', dest="min_size", default=10, help='Indicate the min size in byte of a file to be checked. Default is 10. Empty file are always ignored.')
+    p.add_option('--min-size', '-s', dest="min_size", default=128, help='Indicate the min size in byte of a file to be checked. Default is 128. Empty file are always ignored.')
     p.add_option('--verbose', '-v', action="store_true", default=False, help='More verbose output.')
     p.add_option('--quiet', '-q', action="store_true", default=False, help='Do not print any messages at all.')
 
     global options
     global arguments
     global output
+    global last_checked
+    
     if args:
         # Explicit argument passed; not not print output but save it in the output string
         output = ''
@@ -95,6 +161,7 @@ def main(args=[]):
         return
     
     dir_paths = arguments or ['.']
+    dir_paths = [os.path.abspath(x) for x in dir_paths]
 
     try:
         min_size = int(options.min_size)
@@ -119,7 +186,7 @@ def main(args=[]):
             message(interface_texts.PATH_IS_NOT_VALID_DIR % dir_path)
         else:
             valid_dir_paths.append(dir_path)
-    dir_paths = valid_dir_paths
+    dir_paths = sorted(list(set(valid_dir_paths)))
 
     message(interface_texts.STARTING_CHECKING_MSG % ", ".join(dir_paths))
 
@@ -136,12 +203,13 @@ def main(args=[]):
                    files.append({'name': entry, 'path' : entry_path, 'size': stats.st_size}) 
             else:
                 entries = os.listdir(dir_path)
+                entries.sort()
                 for entry in entries:
                     entry_path = os.path.join(dir_path, entry)
                     if not os.path.isdir(entry_path):
                         stats = os.stat(entry_path)
                         files.append({'name': entry, 'path' : entry_path, 'size': stats.st_size})
-    
+
         # phase 2 - sorting by size
         message("Phase 2: sorting by size", mandatory=True)
         files.sort(lambda x, y: int(x['size']-y['size']))

@@ -8,8 +8,6 @@ import sys, optparse
 import shutil
 import unittest
 
-from datetime import datetime
-
 import tempfile
 
 from pydirduplicatefinder import interface_texts
@@ -21,18 +19,22 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, methodName)
         self.temp_dir = None
         self.files = {}
+        self.counter = 0
     
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
         self.files = {}
+        self.counter = 0
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
     
-    def wrapInNormalExecution(self, dirs, text):
+    def wrapInNormalExecution(self, dirs, texts):
         dirs_text = ', '.join(dirs)
+        if texts:
+            texts.append('')
         return interface_texts.STARTING_CHECKING_MSG % dirs_text + "\n" + \
-               text + \
+               "\n".join(texts) + \
                interface_texts.ENDING_NORMALLY_MSG+"\n"
 
     def mkDir(self, name=None, prefix='tmp', where=None):
@@ -45,7 +47,7 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
            return path
        return tempfile.mkdtemp(prefix=prefix, dir=where)
 
-    def addFile(self, name, directory_path, size=None):
+    def addFile(self, name, directory_path, size=None, like=None):
        """Add a new test-temp file to a specific directory.
        The name of the file can be simple and a file with random content is created and stored in the
        PyDirDuplicateFinderTestCase.files attribute, and also created in the given path.
@@ -55,13 +57,30 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
        @directory_path: path to a directory where store the file
        @size: the size in byte on the file; required only if is the first time you use this name of file,
               forbidden in every other case.
+       @like: create a new file with the same content of an already generated file with given name.
        """
-       filse = self.files
+       files = self.files
        if size and files.has_key(name):
            raise KeyError(("A file with name %s already exists (size: %s bytes). Use a different name")
-                          (" or don't use the size attribute to use the same file.") % (name, files['name']['size']) )
-       if not size and not self.files.has_key(name):
+                          (" or don't use the size attribute to use the same file.") % (name, files[name]['size']) )
+       if not size and not like and not files.has_key(name):
            raise KeyError("File with name %s not found. You must give a size." % name)
-           
-       now = datetime.now().isoformat()
-
+       
+       if like:
+           content = files[like]['content']
+           file_data = "%016d" % content
+           size = files[like]['size']
+       else:
+           content = self.counter
+           file_data = "%016d" % content
+           self.counter+=1
+       
+       file_data+="a" * (size-16)
+       
+       file_path = os.path.join(directory_path, name)
+       f = open(file_path, "w")
+       f.write(file_data)
+       f.close()
+       
+       self.files[name] = {'size': size, 'content': content}
+       return file_path
