@@ -86,6 +86,14 @@ class TestBasicOperations(PyDirDuplicateFinderTestCase):
                                                      [interface_texts.FILE_IS_DUPLICATE % (b, a),]),
                           )
 
+    def testThatTooSmallDuplicatesAreIgnored(self):
+        """Test on file A and its duplicate B, both too small to be checked"""
+        a = self.addFile("a", self.temp_dir, 200)
+        b = self.addFile("b", self.temp_dir, like='a')
+        self.assertEquals(main(['-ra', 'print', '--min-size=400', self.temp_dir]),
+                          self.wrapInNormalExecution([self.temp_dir,], []),
+                          )
+
 suites = []
 
 suites.append(unittest.TestLoader().loadTestsFromTestCase(TestBasicOperations))
