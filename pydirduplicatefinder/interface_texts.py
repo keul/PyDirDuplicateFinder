@@ -32,3 +32,7 @@ ASK_MESSAGE_SELECTION = """Select one of the files:
 NON_VALID_SELECTION = "Selection %s is invalid. Please insert 1 for the original file, 2 for the duplicate."
 
 ASK_INPUT_RENAME = "Insert the new name for '%s' file: "
+ERROR_FILE_EXISTS = "  ERROR. File '%s' already exists. Rename operation failed."
+ASK_INPUT_MOVE = "Insert the new path for '%s' file: "
+DIRECTORY_NOT_EXISTS = "  ERROR. Directory '%s' not exists. Move operation failed."
+

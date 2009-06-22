@@ -8,6 +8,7 @@ import shutil
 import filecmp
 
 from pydirduplicatefinder import interface_texts
+from pydirduplicatefinder.raw_input_defaulted import raw_input_defaulted
 
 version = "1.0.0"
 description = ("Analyse all files in one or more directories and manage duplicate files "
@@ -82,9 +83,12 @@ def _askForUserAction(duplicate, original):
             message(interface_texts.NON_VALID_SELECTION % selection)
     # I have the choice and the selection, now REALLY do something!
     if choice=='d':
-        manage_delete(original, duplicate, selection)
+        response = manage_delete(original, duplicate, selection)
     elif choice=='r':
-        manage_rename(original, duplicate, selection)
+        response = manage_rename(original, duplicate, selection)
+    elif choice=='m':
+        response = manage_move(original, duplicate, selection)
+    message(response or "Done.")
 
 def manage_delete(original, duplicate, selection):
     """Delete the original (or the duplicate) file looking at selection parameter"""
@@ -100,19 +104,49 @@ def manage_delete(original, duplicate, selection):
 def manage_rename(original, duplicate, selection):
     """Rename the original (or the duplicate) file looking at selection parameter"""
     global last_checked
+    prefix = options.prefix
     if selection=='1':
         # Rename the original; change all the last_checked structure
         file_name = os.path.basename(original['path'])
         dir_name = os.path.dirname(original['path'])
-        new_name = raw_input(interface_texts.ASK_INPUT_RENAME % file_name)
+        new_name = raw_input_defaulted(interface_texts.ASK_INPUT_RENAME % file_name, default=prefix+file_name)
+        if os.path.exists(os.path.join(dir_name, new_name)):
+            return interface_texts.ERROR_FILE_EXISTS % new_name
         os.rename(os.path.join(dir_name, file_name), os.path.join(dir_name, new_name))
         last_checked = {'name': new_name, 'path' : os.path.join(dir_name, new_name), 'size': last_checked['size']}
     else:
         # Rename the duplicate
         file_name = os.path.basename(duplicate['path'])
         dir_name = os.path.dirname(duplicate['path'])
-        new_name = raw_input(interface_texts.ASK_INPUT_RENAME % file_name)
+        new_name = raw_input_defaulted(interface_texts.ASK_INPUT_RENAME % file_name, default=prefix+file_name)
+        if os.path.exists(os.path.join(dir_name, new_name)):
+            return interface_texts.ERROR_FILE_EXISTS % new_name
         os.rename(os.path.join(dir_name, file_name), os.path.join(dir_name, new_name))
+
+def manage_move(original, duplicate, selection):
+    """Move the original (or the duplicate) file looking at selection parameter"""
+    global last_checked
+    if selection=='1':
+        # Move the original; change all the last_checked structure
+        file_name = os.path.basename(original['path'])
+        dir_name = os.path.dirname(original['path'])
+        file_path = original['path']
+        new_dir = raw_input_defaulted(interface_texts.ASK_INPUT_MOVE % file_name, default=dir_name)
+        if not os.path.exists(new_dir) or not os.path.isdir(new_dir):
+            return interface_texts.DIRECTORY_NOT_EXISTS % new_dir
+        new_path = os.path.join(new_dir, file_name)
+        os.rename(file_path, new_path)
+        last_checked = {'name': last_checked['name'], 'path' : new_path, 'size': last_checked['size']}
+    else:
+        # Rename the duplicate
+        file_name = os.path.basename(duplicate['path'])
+        dir_name = os.path.dirname(duplicate['path'])
+        file_path = duplicate['path']
+        new_dir = raw_input_defaulted(interface_texts.ASK_INPUT_MOVE % file_name, default=dir_name)
+        if not os.path.exists(new_dir) or not os.path.isdir(new_dir):
+            return interface_texts.DIRECTORY_NOT_EXISTS % new_dir
+        new_path = os.path.join(new_dir, file_name)
+        os.rename(file_path, new_path)
 
 def recurse_dir(directory):
     """List files all files inside dir, recursively"""
