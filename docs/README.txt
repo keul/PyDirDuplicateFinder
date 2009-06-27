@@ -30,11 +30,10 @@ TODO
 ====
 
  * A way to specify filters (regexp? jolly chars?), to include/exclude files or directories by name.
- * A **--action=ask** option to chose at every found duplicate what action perform.
  * More tests coverage.
  * Controls recursion maximum depth.
  * Internationalization (at least italian).
- * A "move to trash" action.
+ * A "move to trash" action (dependency on trash-cli?).
 
 Credits
 =======

@@ -10,7 +10,9 @@ import filecmp
 from pydirduplicatefinder import interface_texts
 from pydirduplicatefinder.raw_input_defaulted import raw_input_defaulted
 
-version = "1.0.0"
+from pydirduplicatefinder import filters
+
+version = "0.3.0"
 description = ("Analyse all files in one or more directories and manage duplicate files "
                "(the same file present with different names)")
 
@@ -168,14 +170,25 @@ def main(args=[]):
     """
     usage = "usage: %prog [options] [directories]"
     p = optparse.OptionParser(usage=usage, version="%prog " + version, description=description, prog="duplicatefinder.py")
-    p.add_option('--action', '-a', default="print", action="store", choices=ACTION_CHOICES+SECRET_ACTION_CHOISES, help='Choose an action to do when a duplicate is found. Valid options are %s; print is the default.' % ','.join(ACTION_CHOICES))
-    p.add_option('--recursive', '-r', action="store_true", default=False, help='Also check files in subdirectories recursively.')
-    #p.add_option('--recursion-level', '-l', default=0, help="When the --recursive option is used, you can also set the maximum deep to explore. This value to 0 (the default) is for no limit.")
-    p.add_option('--prefix', '-p', default="DUPLICATED", help="Prefix used for renaming duplicated files when the 'rename' action is chosen. Default is \"DUPLICATED\".")
-    p.add_option('--move-path', '-m', dest="move_to", default=None, metavar="PATH", help="The directory where duplicate will be moved when the 'move' action is chosen.")
-    p.add_option('--min-size', '-s', dest="min_size", default=128, help='Indicate the min size in byte of a file to be checked. Default is 128. Empty file are always ignored.')
-    p.add_option('--verbose', '-v', action="store_true", default=False, help='More verbose output.')
-    p.add_option('--quiet', '-q', action="store_true", default=False, help='Do not print any messages at all.')
+
+    p.remove_option("--help")
+    p.add_option('--help', '-h', action="store_true", default=False, help='show this help message and exit')
+    
+    p.add_option('--action', '-a', default="print", action="store", choices=ACTION_CHOICES+SECRET_ACTION_CHOISES, help='choose an action to do when a duplicate is found. Valid options are %s; print is the default' % ','.join(ACTION_CHOICES))
+    p.add_option('--recursive', '-r', action="store_true", default=False, help='also check files in subdirectories recursively')
+    #p.add_option('--recursion-level', '-l', type="int", default=0, help="when the --recursive option is used, you can also set the maximum deep to explore. This value to 0 (the default) is for no limit")
+    p.add_option('--prefix', '-p', default="DUPLICATED", help="prefix used for renaming duplicated files when the 'rename' action is chosen. Default is \"DUPLICATED\"")
+    p.add_option('--move-path', '-m', dest="move_to", default=None, metavar="PATH", help="the directory where duplicate will be moved when the 'move' action is chosen")
+    p.add_option('--verbose', '-v', action="store_true", default=False, help='more verbose output')
+    p.add_option('--quiet', '-q', action="store_true", default=False, help='do not print any messages at all')
+
+    group = optparse.OptionGroup(p, "Filters",
+                                    "Use those options to limit and filter directories and files to check")
+    # p.add_option('--min-size', '-s', dest="min_size", default=128, help='indicate the min size in bytes of a file for being checked. Default is 128. Empty file are always ignored')
+
+    group.add_option('--min-size', '-s', dest="min_size", default=128, help='indicate the min size in bytes of a file for being checked. Default is 128. Empty file are always ignored')
+    group.add_option("--include-dir", dest="include_dirs", metavar="INCLUDE_DIR", action="append", help="only check directories with this name (see below)")
+    p.add_option_group(group)
 
     global options
     global arguments
@@ -187,6 +200,11 @@ def main(args=[]):
         output = ''
     args = args or sys.argv[1:]
     options, arguments = p.parse_args(args)
+    
+    if options.help:
+        p.print_help()
+        print interface_texts.HELP_FINAL_INFOS
+        sys.exit(0)
     
     action = options.action
 
@@ -220,6 +238,11 @@ def main(args=[]):
             message(interface_texts.PATH_IS_NOT_VALID_DIR % dir_path)
         else:
             valid_dir_paths.append(dir_path)
+    
+    # Include only dirs that match filters (if used)
+    if options.include_dirs:
+        valid_dir_paths = [d for d in valid_dir_paths if filters.matchPatterns(d, options.include_dirs)]
+
     dir_paths = sorted(list(set(valid_dir_paths)))
 
     message(interface_texts.STARTING_CHECKING_MSG % ", ".join(dir_paths))
@@ -230,7 +253,7 @@ def main(args=[]):
         files = []
         for dir_path in dir_paths:
             if options.recursive:
-               entries =  recurse_dir(dir_path)
+               entries = recurse_dir(dir_path)
                for entry_path in entries:
                    stats = os.stat(entry_path)
                    entry = os.path.basename(entry_path)
@@ -286,7 +309,7 @@ def testrunner():
     from pydirduplicatefinder import tests as pddf_tests
     import unittest
     unittest.TextTestRunner(verbosity=2).run(pddf_tests.test_functions.alltests)
-
+    unittest.TextTestRunner(verbosity=2).run(pddf_tests.test_filters.alltests)
 
 if __name__ == "__main__":
     main()

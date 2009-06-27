@@ -36,3 +36,7 @@ ERROR_FILE_EXISTS = "  ERROR. File '%s' already exists. Rename operation failed.
 ASK_INPUT_MOVE = "Insert the new path for '%s' file: "
 DIRECTORY_NOT_EXISTS = "  ERROR. Directory '%s' not exists. Move operation failed."
 
+#                               80 chars                                       #
+HELP_FINAL_INFOS = """
+Report bugs (and suggestions) to <luca@keul.it>.
+"""
