@@ -17,7 +17,8 @@ def _input_default(prompt, default):
 
 def raw_input_defaulted(msg, default=''):
     """A raw_input implementation with default value already specified
-    Is based on readline module, avaiable only on UNIX systems.
+    Is based on readline module, avaiable only on UNIX systems; if the readline if not found
+    no default is given.
     """
     if not default or not READLINE_AVAILABLE:
         return raw_input(msg)

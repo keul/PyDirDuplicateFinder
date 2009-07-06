@@ -151,11 +151,13 @@ def manage_move(original, duplicate, selection):
         os.rename(file_path, new_path)
 
 def recurse_dir(directory):
-    """List files all files inside dir, recursively"""
+    """List files all files inside a directory, recursively"""
     dirs = os.walk(directory)
     all_files = []
     for dirpath, dirnames, filenames in dirs:
-        dirnames.sort() # Needed only for tests purposes
+        if options.include_dirs:
+            dirnames = [d for d in dirnames if filters.matchPatterns(d, options.include_dirs)]
+        dirnames.sort() # BBB: in facts is needed only for tests purposes
         files_in = []
         filenames.sort()
         for f in filenames:
@@ -186,8 +188,8 @@ def main(args=[]):
                                     "Use those options to limit and filter directories and files to check")
     # p.add_option('--min-size', '-s', dest="min_size", default=128, help='indicate the min size in bytes of a file for being checked. Default is 128. Empty file are always ignored')
 
-    group.add_option('--min-size', '-s', dest="min_size", default=128, help='indicate the min size in bytes of a file for being checked. Default is 128. Empty file are always ignored')
-    group.add_option("--include-dir", dest="include_dirs", metavar="INCLUDE_DIR", action="append", help="only check directories with this name (see below)")
+    group.add_option('--min-size', '-s', dest="min_size", type="int", default=128, help='indicate the min size in bytes of a file for being checked. Default is 128. Empty file are always ignored')
+    group.add_option("--include-dir", dest="include_dirs", default=[], metavar="INCLUDE_DIR", action="append", help="only check directories with this name (see below)")
     p.add_option_group(group)
 
     global options
@@ -215,11 +217,7 @@ def main(args=[]):
     dir_paths = arguments or ['.']
     dir_paths = [os.path.abspath(x) for x in dir_paths]
 
-    try:
-        min_size = int(options.min_size)
-    except ValueError:
-        print "The --min-size options must be an integer"
-        sys.exit(1)
+    min_size = options.min_size
     if min_size<=0:
         print "The --min-size options must a positive value"
         sys.exit(1)
@@ -244,6 +242,9 @@ def main(args=[]):
         valid_dir_paths = [d for d in valid_dir_paths if filters.matchPatterns(d, options.include_dirs)]
 
     dir_paths = sorted(list(set(valid_dir_paths)))
+
+    if not dir_paths:
+        message(interface_texts.NO_DIRS_TO_CHECK_LEFT)
 
     message(interface_texts.STARTING_CHECKING_MSG % ", ".join(dir_paths))
 

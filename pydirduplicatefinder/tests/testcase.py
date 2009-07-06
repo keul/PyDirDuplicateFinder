@@ -37,7 +37,7 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
                "\n".join(texts) + \
                interface_texts.ENDING_NORMALLY_MSG+"\n"
 
-    def mkDir(self, name=None, prefix='tmp', where=None):
+    def mkDir(self, name=None, where=None, prefix='tmp'):
        """Create a test directory inside the temp directory"""
        if not where:
            where = self.temp_dir
@@ -61,8 +61,8 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
        """
        files = self.files
        if size and files.has_key(name):
-           raise KeyError(("A file with name %s already exists (size: %s bytes). Use a different name")
-                          (" or don't use the size attribute to use the same file.") % (name, files[name]['size']) )
+           raise KeyError("A file with name %s already exists (size: %s bytes). Use a different name"
+                          " or don't use the size attribute to use the same file." % (name, files[name]['size']) )
        if not size and not like and not files.has_key(name):
            raise KeyError("File with name %s not found. You must give a size." % name)
        
@@ -74,6 +74,8 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
            content = self.counter
            file_data = "%016d" % content
            self.counter+=1
+           if not size:
+               size = files[name]['size']
        
        file_data+="a" * (size-16)
        
