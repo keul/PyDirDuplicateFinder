@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.4.0
+-----
+
+ * The runnable script name has been changed again to **duplicatefinder** (no more .py to be able to
+   obtain a better *.deb* package).
+ * Release of the program also as Debian/Ubuntu package.
+
 0.3.0
 -----
 

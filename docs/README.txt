@@ -54,7 +54,6 @@ TODO
  * Controls recursion maximum depth.
  * Internationalization (at least italian).
  * A "move to trash" action (dependency on `trash-cli`__ can be a great idea).
- * Release this as a Debian/Ubuntu/Kubuntu package (I'll really love this).
 
 __ http://pypi.python.org/pypi/trash-cli/
 
