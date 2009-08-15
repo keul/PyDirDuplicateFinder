@@ -151,13 +151,15 @@ def manage_move(original, duplicate, selection):
         os.rename(file_path, new_path)
 
 def recurse_dir(directory):
-    """List files all files inside a directory, recursively"""
+    """List all files inside a directory, recursively"""
     dirs = os.walk(directory)
     all_files = []
     for dirpath, dirnames, filenames in dirs:
         if options.include_dirs:
-            dirnames = [d for d in dirnames if filters.matchPatterns(d, options.include_dirs)]
-        dirnames.sort() # BBB: in facts is needed only for tests purposes
+            dirnames[:] = [d for d in dirnames if filters.matchPatterns(d, options.include_dirs)]
+        if options.exclude_dirs:
+            dirnames[:] = [d for d in dirnames if not filters.matchPatterns(d, options.exclude_dirs)]
+        dirnames[:] = sorted(dirnames) # BBB: in facts this is needed only for tests purposes
         files_in = []
         filenames.sort()
         for f in filenames:
@@ -185,11 +187,16 @@ def main(args=[]):
     p.add_option('--quiet', '-q', action="store_true", default=False, help='do not print any messages at all')
 
     group = optparse.OptionGroup(p, "Filters",
-                                    "Use those options to limit and filter directories and files to check")
-    # p.add_option('--min-size', '-s', dest="min_size", default=128, help='indicate the min size in bytes of a file for being checked. Default is 128. Empty file are always ignored')
+                                    "Use those options to limit and filter directories and files to check.\n"
+                                    "Options belowe that rely on file or directory name support usage of jolly characters "
+                                    "and can also be used multiple times")
 
     group.add_option('--min-size', '-s', dest="min_size", type="int", default=128, help='indicate the min size in bytes of a file for being checked. Default is 128. Empty file are always ignored')
-    group.add_option("--include-dir", dest="include_dirs", default=[], metavar="INCLUDE_DIR", action="append", help="only check directories with this name (see below)")
+    group.add_option("--include-dir", dest="include_dirs", default=[], metavar="INCLUDE_DIR", action="append", help="only check directories with this name")
+    group.add_option("--exclude-dir", dest="exclude_dirs", default=[], metavar="EXCLUDE_DIR", action="append", help="do not check directories with this name")
+    group.add_option("--include-file", dest="include_files", default=[], metavar="INCLUDE_FILE", action="append", help="limit the search inside file with that name")
+    group.add_option("--exclude-file", dest="exclude_files", default=[], metavar="EXCLUDE_FILE", action="append", help="ignore the search inside file with that name")
+
     p.add_option_group(group)
 
     global options
@@ -241,6 +248,10 @@ def main(args=[]):
     if options.include_dirs:
         valid_dir_paths = [d for d in valid_dir_paths if filters.matchPatterns(d, options.include_dirs)]
 
+    # Exclude dirs that do not match filters (if used)
+    if options.exclude_dirs:
+        valid_dir_paths = [d for d in valid_dir_paths if not filters.matchPatterns(d, options.exclude_dirs)]
+
     dir_paths = sorted(list(set(valid_dir_paths)))
 
     if not dir_paths:
@@ -267,6 +278,14 @@ def main(args=[]):
                     if not os.path.isdir(entry_path):
                         stats = os.stat(entry_path)
                         files.append({'name': entry, 'path' : entry_path, 'size': stats.st_size})
+
+        # Limit only to file name used in the include_files option
+        if options.include_files:
+            files = [f for f in files if filters.matchPatterns(f['path'], options.include_files)]
+
+        # Skip files indicated using exclude_files option
+        if options.exclude_files:
+            files = [f for f in files if not filters.matchPatterns(f['path'], options.exclude_files)]
 
         # phase 2 - sorting by size
         message("Phase 2: sorting by size", mandatory=True)

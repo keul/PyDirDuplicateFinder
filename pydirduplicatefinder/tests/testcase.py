@@ -67,16 +67,21 @@ class PyDirDuplicateFinderTestCase(unittest.TestCase):
            raise KeyError("File with name %s not found. You must give a size." % name)
        
        if like:
+           # Like another file
            content = files[like]['content']
-           file_data = "%016d" % content
            size = files[like]['size']
+       elif not like and not size:
+           # Full copy of another file
+           content = files[name]['content']
+           size = files[name]['size']           
        else:
+           # New file
            content = self.counter
-           file_data = "%016d" % content
            self.counter+=1
            if not size:
                size = files[name]['size']
-       
+
+       file_data = "%016d" % content
        file_data+="a" * (size-16)
        
        file_path = os.path.join(directory_path, name)

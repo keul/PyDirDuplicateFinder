@@ -4,16 +4,20 @@ Changelog
 0.3.0
 -----
 
- * The runnable script name has been changed to **duplicatefinder**.
+ * The runnable script name has been changed to **duplicatefinder.py**.
  * You can now pass multiple target directories as parameters.
  * Added a **--action=ask** option for choosing at every duplicate what action perform (interactive mode).
+ * Added the **--include-dir** option for limit the search only to specific directories.
+ * Added the **--exclude-dir** option for skipping the search from some directories.
+ * Added the **--include-file** option for match only some files in the search.
+ * Added the **--exclude-file** option for skipping files from the search, based on file name.
  * Using a wrong directory name was not handled, but was producing only abnormal termination.
  * More kindly handle of the *break* (CTRL+C) user's action.
  * Added the **--verbose** option to print some more message infos.
  * Added the **--quiet** option to output nothing at all.
  * Removed the *_same_file* function. Python already have a `filecmp`__ module (hoping this is faster)!
  * Added environment for automated tests, and tests too (use the *--action=tests*).
- * some fix to the command line help.
+ * Some fixes to the command line help.
 
 __ http://docs.python.org/library/filecmp.html
 
@@ -40,4 +44,4 @@ __ http://docs.python.org/library/filecmp.html
 0.1.0 - Unreleased
 ------------------
 
- * First release
+ * First (un)release

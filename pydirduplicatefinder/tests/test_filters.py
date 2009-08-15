@@ -60,7 +60,7 @@ class TestPathFilters(PyDirDuplicateFinderTestCase):
         self.addFile("a", d3)
         d1name = basename(d1)
         d2name = basename(d2)
-        self.assertEquals(main(['--include-dir=%s' % d1name, '--include-dir=%s' % d2name, d1, d2, ]),
+        self.assertEquals(main(['--include-dir=%s' % d1name, '--include-dir=%s' % d2name, d1, d2, d3]),
                           self.wrapInNormalExecution([d2, d1],
                                                      [interface_texts.FILE_IS_DUPLICATE % (c, b),
                                                       interface_texts.FILE_IS_DUPLICATE % (a, b)]),
@@ -74,10 +74,62 @@ class TestPathFilters(PyDirDuplicateFinderTestCase):
         b = self.addFile("a", d2)
         d1name = basename(d1)
         self.assertEquals(main(['-r','--include-dir=%s' % d1name, d1, ]),
-                          self.wrapInNormalExecution([d2, d1],
-                                                     [interface_texts.FILE_IS_DUPLICATE % (c, b),
-                                                      interface_texts.FILE_IS_DUPLICATE % (a, b)]),
+                          self.wrapInNormalExecution([d1], []),
                           )
+
+    def testDirectDirectoriesNameWithJollyChar(self):
+        """Test a duplicate is ignored when usage of --include-dir exclude it; using jolly chars"""
+        dira = self.mkDir('dira')
+        a = self.addFile("a", dira, size=200)
+        dirb = self.mkDir('dirb')
+        b = self.addFile("a", dirb)
+        cdir = self.mkDir('cdir')
+        c = self.addFile("a", cdir)
+        self.assertEquals(main(['--include-dir=di*', dira, dirb, cdir]),
+                          self.wrapInNormalExecution([dira, dirb],
+                                                     [interface_texts.FILE_IS_DUPLICATE % (b, a)]),
+                          )
+
+    def testIncludeEquality(self):
+        """Test that --include-dir=Car and --include-dir=Carlos is the same as --include-dir=Car*"""
+        carl = self.mkDir('Carl')
+        a = self.addFile("a", carl, size=200)
+        carlos = self.mkDir('Carlos')
+        b = self.addFile("a", carlos)
+        self.assertEquals(main(['--include-dir=Carl', '--include-dir=Carlos', carl, carlos]),
+                          main(['--include-dir=Carl*', carl, carlos]),
+                          )
+
+    def testIncludeExcludeDirectoriesAtSametime(self):
+        """Test a filter using both --include-dir and --exclude-dir"""
+        carl = self.mkDir('Carl')
+        a = self.addFile("a", carl, size=200)
+        carlos = self.mkDir('Carlos')
+        b = self.addFile("a", carlos)
+        carles = self.mkDir('Carles', carl)
+        c = self.addFile("a", carles)
+        carlis = self.mkDir('Carlis')
+        d = self.addFile("a", carlis)        
+        self.assertEquals(main(['-r','--include-dir=Carl*', '--exclude-dir=Carles', carl, carlos]),
+                          self.wrapInNormalExecution([carl, carlos],
+                                                     [interface_texts.FILE_IS_DUPLICATE % (b, a)]),
+                          )
+        self.assertEquals(main(['-r','--include-dir=Carl*', '--exclude-dir=Carles', carl, carlos, carlis]),
+                          self.wrapInNormalExecution([carl, carlis, carlos],
+                                                     [interface_texts.FILE_IS_DUPLICATE % (d, a),
+                                                      interface_texts.FILE_IS_DUPLICATE % (b, a)]),
+                          )
+
+    def testIncludeExcludeFiles(self):
+        """Test usage of --include-file and --exclude-file"""
+        loris = self.addFile("loris", self.temp_dir, size=200)
+        laris = self.addFile("laris", self.temp_dir, like="loris")
+        liris = self.addFile("liris", self.temp_dir, like="loris")
+        self.assertEquals(main(['--include-file=l?ris', '--exclude-file=li*', self.temp_dir]),
+                          self.wrapInNormalExecution([self.temp_dir],
+                                                     [interface_texts.FILE_IS_DUPLICATE % (loris, laris)]),
+                          )
+
 
 suites = []
 

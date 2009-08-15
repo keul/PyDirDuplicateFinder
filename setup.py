@@ -19,7 +19,7 @@ setup(name='PyDirDuplicateFinder',
                    "Topic :: Utilities"], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='filesystem file duplicate directory utility',
       author='Keul',
-      author_email='lucafbb@gmail.com',
+      author_email='luca@keul.it',
       url='http://keul.it/develop/python/pydirduplicatefinder/',
       license='GPL',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
